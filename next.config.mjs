@@ -1,6 +1,7 @@
-import type { NextConfig } from "next";
+// @ts-check
 
-const nextConfig: NextConfig = {
+/** @type {import("next").NextConfig} */
+const nextConfig = {
   /* config options here */
   // Use an app-owned cache folder; the old .next folder had restrictive
   // Windows/OneDrive permissions that prevented Next from creating API output.
