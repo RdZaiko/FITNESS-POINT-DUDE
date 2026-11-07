@@ -3,9 +3,12 @@
 /** @type {import("next").NextConfig} */
 const nextConfig = {
   /* config options here */
-  // Use an app-owned cache folder; the old .next folder had restrictive
-  // Windows/OneDrive permissions that prevented Next from creating API output.
-  distDir: process.env.NEXT_DIST_DIR || ".next-localdev",
+  // Keep the local development cache isolated on Windows/OneDrive. Production
+  // builds use Next.js's standard `.next` directory for hosting compatibility.
+  distDir:
+    process.env.NODE_ENV === "development"
+      ? process.env.NEXT_DIST_DIR || ".next-localdev"
+      : ".next",
   cacheComponents: true,
   partialPrefetching: true,
   devIndicators: false,
