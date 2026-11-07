@@ -14,6 +14,7 @@
     "@hookform/resolvers": "^6.0.0",
     "@mux/mux-player-react": "^3.14.0",
     "@mux/ts": "^15.6.1",
+    "@next/swc-wasm-nodejs": "16.4.2",
     "framer-motion": "^14.4.0",
     "lucide-react": "^1.60.0",
     "next": "16.4.2",
