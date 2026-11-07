@@ -1,0 +1,4 @@
+"use client";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+export function MaterialControls({id}:{id:string}){const router=useRouter();const [message,setMessage]=useState("");const [busy,setBusy]=useState(false);return <div><button className="small-button archive-button" disabled={busy} onClick={async()=>{if(!window.confirm("Delete this material and its private file?"))return;setBusy(true);setMessage("");try{const response=await fetch(`/api/teacher/materials/${id}`,{method:"DELETE"});const data=await response.json();if(!response.ok)throw new Error(data.error??"Could not delete material.");router.refresh();}catch(error){setMessage(error instanceof Error?error.message:"Could not delete material.");}finally{setBusy(false);}}}>{busy?"Removing…":"Delete"}</button>{message&&<small role="status">{message}</small>}</div>}

@@ -1,0 +1,12 @@
+import { Megaphone } from "lucide-react";
+import { getUserContext } from "@/lib/auth";
+import { createClient } from "@/lib/local-backend/server";
+import { AnnouncementControls } from "@/components/announcement-controls";
+type NoticeRow={id?:string;title:string;body:string;created_at:string;batch:string};
+type NoticeQuery={id:string;title:string;body:string;created_at:string;batches:{title:string}|{title:string}[]|null};
+export default async function AnnouncementsPage(){
+  const user=await getUserContext();let rows:NoticeRow[]=[];
+  if(user?.demo)rows=[{title:"Welcome to your new term!",body:"This week we’re setting our learning goals and getting comfortable asking questions. Bring your notebook and all the questions you’ve been saving.",created_at:"Monday · 9:00 AM",batch:"All Grade 10 students"},{title:"A small reminder about class notes",body:"Lesson notes and practice sheets are posted after each class. Take a look before our next session if you can.",created_at:"Last week",batch:"Mathematics, made clear"}];
+  else{const db=await createClient();if(db&&user){const {data}=await db.from("announcements").select("id,title,body,created_at,batches(title)").order("created_at",{ascending:false});const notices=(data??[]) as unknown as NoticeQuery[];rows=notices.map(x=>({id:x.id,title:x.title,body:x.body,created_at:x.created_at,batch:Array.isArray(x.batches)?x.batches[0]?.title??"All batches":x.batches?.title??"All batches"}));}}
+  return <><div className="portal-title-row"><div><span className="eyebrow"><span className="eyebrow-line"/> CLASSROOM UPDATES</span><h1>Good to know.</h1><p>Notes and updates from your teacher.</p></div></div>{rows.length?<div className="panel">{rows.map(x=><article key={x.id??x.title} className="list-row" style={{alignItems:"start",paddingBlock:18}}><div style={{flex:1}}><div className="eyebrow"><Megaphone size={13}/>{x.batch} · {x.created_at.includes("·")?x.created_at:new Date(x.created_at).toLocaleDateString("en-IN",{month:"short",day:"numeric"})}</div><h2 style={{fontFamily:"Georgia,serif",fontSize:20,fontWeight:400,margin:"8px 0"}}>{x.title}</h2><p style={{fontSize:11,color:"#778078",lineHeight:1.75,margin:0}}>{x.body}</p></div>{x.id&&user?.role==="teacher"&&!user.demo&&<AnnouncementControls id={x.id} title={x.title} body={x.body}/>}</article>)}</div>:<div className="empty-state">No announcements yet.</div>}{user?.role==="teacher"&&<p className="form-note">Create new announcements in Courses &amp; batches quick actions.</p>}</>;
+}

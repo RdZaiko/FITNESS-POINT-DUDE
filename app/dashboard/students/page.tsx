@@ -1,0 +1,12 @@
+import { getUserContext } from "@/lib/auth";
+import { createClient } from "@/lib/local-backend/server";
+import { EnrollmentStatus, EnrollmentTools } from "@/components/enrollment-tools";
+type RosterRow={id:string;name:string;email:string;batch:string;status:string};
+type EnrollmentQuery={id:string;status:string;profiles:{full_name:string;email:string}|{full_name:string;email:string}[]|null;batches:{title:string}|{title:string}[]|null};
+export default async function StudentsPage(){
+  const user=await getUserContext();let rows:RosterRow[]=[];
+  let batchOptions:{id:string;title:string}[]=[];
+  if(user?.demo)rows=[{id:"demo-enrollment-1",name:"Aarav Mehta",email:"aarav.demo@example.test",batch:"Mathematics, made clear",status:"active"},{id:"demo-enrollment-2",name:"Sana Kapoor",email:"sana.demo@example.test",batch:"Physics that clicks",status:"active"},{id:"demo-enrollment-3",name:"Mira Shah",email:"mira.demo@example.test",batch:"Chemistry with a plan",status:"pending"}];
+  else if(user?.role==="teacher"){const db=await createClient();if(db){const [rosterResult,batchResult]=await Promise.all([db.from("enrollments").select("id,status,profiles(full_name,email),batches(title)").order("created_at",{ascending:false}),db.from("batches").select("id,title").eq("teacher_id",user.id).eq("archived",false)]);const enrollments=(rosterResult.data??[]) as unknown as EnrollmentQuery[];rows=enrollments.map(x=>({id:x.id,name:Array.isArray(x.profiles)?x.profiles[0]?.full_name??"Student":x.profiles?.full_name??"Student",email:Array.isArray(x.profiles)?x.profiles[0]?.email??"":x.profiles?.email??"",batch:Array.isArray(x.batches)?x.batches[0]?.title??"Batch":x.batches?.title??"Batch",status:x.status}));batchOptions=(batchResult.data??[]) as {id:string;title:string}[];}}
+  return <><div className="portal-title-row"><div><span className="eyebrow"><span className="eyebrow-line"/> YOUR COMMUNITY</span><h1>Students</h1><p>Enrollment status across the batches you teach.</p></div></div>{user?.role!=="teacher"?<div className="empty-state">Student roster is only available to teachers.</div>:<><EnrollmentTools batches={batchOptions}/>{rows.length?<section className="panel" style={{marginTop:14}}>{rows.map(x=><div className="list-row" key={x.id}><div><b>{x.name}</b><small>{x.email} · {x.batch}</small></div>{!user.demo?<EnrollmentStatus id={x.id} status={x.status}/>:<span className={`badge ${x.status==="pending"?"orange":""}`}>{x.status}</span>}</div>)}</section>:<div className="empty-state" style={{marginTop:14}}>No student enrollments yet.</div>}</>}</>;
+}

@@ -1,0 +1,6 @@
+import { NextResponse } from "next/server";
+import { z } from "zod";
+import { getUserContext } from "@/lib/auth";
+import { createClient } from "@/lib/local-backend/server";
+const schema=z.object({title:z.string().trim().min(3).max(160).optional(),description:z.string().trim().max(2000).optional(),sort_order:z.number().int().min(0).max(10000).optional(),status:z.enum(["draft","archived"]).optional()}).refine(value=>Object.keys(value).length>0);
+export async function PATCH(request:Request,{params}:{params:Promise<{id:string}>}){const user=await getUserContext();if(!user||user.role!=="teacher"||user.demo)return NextResponse.json({error:"Teacher access is required."},{status:403});const db=await createClient();if(!db)return NextResponse.json({error:"Backend services are unavailable in local-only mode."},{status:503});const input=schema.safeParse(await request.json().catch(()=>null));if(!input.success)return NextResponse.json({error:"Invalid lesson update."},{status:400});const {id}=await params;const {data,error}=await db.from("lessons").update(input.data).eq("id",id).eq("teacher_id",user.id).select("id").maybeSingle();if(error)return NextResponse.json({error:"Could not update this lesson."},{status:500});if(!data)return NextResponse.json({error:"Lesson not found."},{status:404});return NextResponse.json({ok:true});}

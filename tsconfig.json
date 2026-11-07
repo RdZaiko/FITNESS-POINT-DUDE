@@ -1,0 +1,62 @@
+{
+  "compilerOptions": {
+    "target": "ES2017",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "paths": {
+      "@/*": [
+        "./*"
+      ]
+    }
+  },
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts",
+    "**/*.mts",
+    ".next-localdev/types/**/*.ts",
+    ".next-localdev/dev/types/**/*.ts",
+    ".next-feature-build/types/**/*.ts",
+    ".next-feature-build/dev/types/**/*.ts",
+    ".next-local-preview-check/types/**/*.ts",
+    ".next-local-preview-check/dev/types/**/*.ts",
+    ".next-premium-verify-20261025-1355/types/**/*.ts",
+    ".next-premium-verify-20261025-1355/dev/types/**/*.ts",
+    ".next-final-verification-20261025/types/**/*.ts",
+    ".next-final-verification-20261025/dev/types/**/*.ts",
+    ".next-gymbuild/types/**/*.ts",
+    ".next-gymbuild/dev/types/**/*.ts",
+    ".next-gymdev/types/**/*.ts",
+    ".next-gymdev/dev/types/**/*.ts",
+    ".next-gymdev3001/types/**/*.ts",
+    ".next-gymdev3001/dev/types/**/*.ts",
+    ".next-fitness-preview/types/**/*.ts",
+    ".next-fitness-preview/dev/types/**/*.ts",
+    ".next-fitness-build/types/**/*.ts",
+    ".next-fitness-build/dev/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}

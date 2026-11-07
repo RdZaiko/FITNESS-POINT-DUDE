@@ -1,0 +1,12 @@
+import { Download, FileText } from "lucide-react";
+import { getUserContext } from "@/lib/auth";
+import { createClient } from "@/lib/local-backend/server";
+import { MaterialControls } from "@/components/material-controls";
+type MaterialRow={id?:string;title:string;file_type:string;description:string;batch:string};
+type MaterialQuery={id:string;title:string;file_type:string;description:string;batches:{title:string}|{title:string}[]|null};
+export default async function MaterialsPage(){
+  const user=await getUserContext();let rows:MaterialRow[]=[];
+  if(user?.demo)rows=[{title:"Quadratic equations · Practice set",file_type:"PDF",description:"12 problems with an answer key for self-checking.",batch:"Mathematics, made clear"},{title:"Coordinate geometry · Class notes",file_type:"PDF",description:"Key formulas and worked examples from class.",batch:"Mathematics, made clear"},{title:"Electric fields · Revision sheet",file_type:"PDF",description:"A quick recap before the next live session.",batch:"Physics that clicks"}];
+  else{const db=await createClient();if(db&&user){const {data}=await db.from("study_materials").select("id,title,file_type,description,batches(title)").order("created_at",{ascending:false});const materials=(data??[]) as unknown as MaterialQuery[];rows=materials.map(x=>({id:x.id,title:x.title,file_type:x.file_type,description:x.description,batch:Array.isArray(x.batches)?x.batches[0]?.title??"Batch":x.batches?.title??"Batch"}));}}
+  return <><div className="portal-title-row"><div><span className="eyebrow"><span className="eyebrow-line"/> YOUR CLASS NOTES</span><h1>Keep the good stuff close.</h1><p>Notes, practice sheets, and resources shared for your batches.</p></div></div>{rows.length?<section className="panel">{rows.map(x=><div key={x.id??x.title} className="list-row"><div style={{display:"flex",alignItems:"center",gap:11,flex:1}}><div className="material-icon"><FileText size={16}/></div><div><b>{x.title}</b><small>{x.file_type} · {x.batch} · {x.description}</small></div></div>{x.id&&!user?.demo&&user?.role==="teacher"?<MaterialControls id={x.id}/>:x.id&&!user?.demo?<a href={`/api/materials/${x.id}/download`} aria-label={`Download ${x.title}`}><Download size={15}/></a>:<span className="badge">{user?.demo?"Sample":"File pending"}</span>}</div>)}</section>:<div className="empty-state">Your teacher’s shared materials will appear here.</div>}{user?.role==="teacher"&&<p className="form-note">Upload materials from Courses &amp; batches quick actions. Student downloads expire after one minute.</p>}</>;
+}
